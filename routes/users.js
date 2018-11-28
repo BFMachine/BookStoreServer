@@ -44,7 +44,7 @@ router.get('/', function(req, res, next) {
 
 
 router.post('/', function(req, res, next) {
-  //curl -v -i --header "Content-Type: application/json" --request POST --data '{"email":"temp@gmail.com","password":"111", "role":"1", "full_name":"Балабанов Семен Семенович", "address":"г.Таганрог", "phone":"8(8634)888-88"}' http://localhost:3000/users
+  //curl -v -i --header "Content-Type: application/json" --request POST --data '{"email":"temp@gmail.com","password":"111", "role":"user", "full_name":"Балабанов Семен Семенович", "address":"г.Таганрог", "phone":"8(8634)888-88"}' http://localhost:3000/users
 
   let {email, role, full_name, address, phone, password} = req.body;
   //if(user.validPassword(req.body.password)) {

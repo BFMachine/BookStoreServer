@@ -8,11 +8,15 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      text: {
-        type: Sequelize.STRING
+      content: {
+        type: Sequelize.TEXT
       },
       date: {
         type: Sequelize.DATE
+      },
+      commenterName: { 
+        type: DataTypes.STRING,
+        required: true
       },
       createdAt: {
         //allowNull: false,

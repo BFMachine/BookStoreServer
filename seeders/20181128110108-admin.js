@@ -6,7 +6,7 @@ module.exports = {
       {
         email: "admin",
         pass_hash: "111",
-        role: 0,
+        role: "admin",
         full_name: "Иванов Иван Иванович",
         address: "г.Таганрог, ул.Петровская, д.1",
         phone: "+7(999)999-99-99",
@@ -15,7 +15,7 @@ module.exports = {
       {
         email: "reader",
         pass_hash: "111",
-        role: 1,
+        role: "user",
         full_name: "Петров Петр Петрович",
         address: "г.Таганрог, ул.Петровская, д.2",
         phone: "+7(111)111-11-11",
@@ -24,7 +24,7 @@ module.exports = {
       {
         email: "aaa@gmail.com",
         pass_hash: "111",
-        role: 1,
+        role: "disabled",
         full_name: "Сидоров Сидор Сидорович",
         address: "г.Таганрог, ул.Петровская, д.3",
         phone: "+7(555)555-55-55",
