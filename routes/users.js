@@ -28,6 +28,7 @@ router.get('/:userId', function(req, res, next) {
 });
 
 // get all users info from db
+//curl -v -i --header "Content-Type: application/json" --request GET  http://localhost:3000/users
 router.get('/', function(req, res, next) {
 
 	db.User.findAll({
@@ -86,7 +87,7 @@ router.post('/', function(req, res, next) {
 	});
 });
 
-// change user data
+// change user data only fields send in body, no password, email and role changed
 //curl -v --header "Content-Type: application/json" --request PUT --data '{"email":"temp@gmail.com","password":"111", "role":"user", "full_name":"Балабанов Семен Семенович", "address":"г.Таганрог", "phone":"8(8634)888-88"}' http://localhost:3000/users
 router.put('/:userId', function(req, res, next) {
 
@@ -119,7 +120,7 @@ router.put('/:userId', function(req, res, next) {
 	})
 	.catch((err) => {
 		console.error(err);
-		return res.status(500).send("Error on create new user");
+		return res.status(500).send("Error on update user");
 	});
 });
 

@@ -1,33 +1,22 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Books', {
+    return queryInterface.createTable('Orders', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      title: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      author: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      description: {
-        type: Sequelize.TEXT
-      },
-      price: {
+      total_cost: {
         type: Sequelize.FLOAT
       },
-      rank: {
+      status: {
         type: Sequelize.ENUM,
-        values: ["one", "two", "three", "four", "five"] 
+        values: ["preorder", "payed", "delivered"]
       },
-      category: {
-        type: Sequelize.INTEGER
+      pay_date: {
+        type: Sequelize.DATE
       },
       created_at: {
         allowNull: false,
@@ -40,6 +29,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Books');
+    return queryInterface.dropTable('Orders');
   }
 };
