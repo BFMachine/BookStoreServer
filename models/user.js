@@ -12,12 +12,12 @@ module.exports = (sequelize, DataTypes) => {
         } */   
     },
     pass_hash: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING, 
         allowNull: false
     },
     role: {
-          type: DataTypes.ENUM,
-          values: ["admin", "user", "disabled"]
+        type: DataTypes.ENUM,
+        values: ["admin", "user", "disabled"]
     },
     full_name: {
         type: DataTypes.STRING
@@ -31,13 +31,24 @@ module.exports = (sequelize, DataTypes) => {
     ref_token: {
         type: DataTypes.STRING(512)
     },
-    createdAt: {
-      type: DataTypes.DATE,
-      defaultValue: sequelize.literal('NOW()')
+    created_at: {
+        type: DataTypes.DATE,
+        defaultValue: sequelize.literal('CURRENT_TIMESTAMP')
+    },
+    updated_at: {
+        type: DataTypes.DATE,
+        defaultValue: sequelize.literal('CURRENT_TIMESTAMP')
     }
-  }, {});
+  }, {
+        underscored: true
+  });
   User.associate = function(models) {
-    // associations can be defined here
+    models.User.hasMany(models.Comment, {
+    //User.hasMany(models.comment, {
+        foreignKey: "user_id",
+        onDelete: "CASCADE"
+    });
+
   };
 
   User.generateHash = function (password) {

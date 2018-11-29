@@ -4,20 +4,23 @@
     "password": "fusion",
     "database": "bookstore",
     "host": "localhost",
-    "dialect": "postgres"
+    "dialect": "postgres",
+    "timezone": "+03:00"
   },
   "test": {
     "username": "fusion",
     "password": "fusion",
     "database": "bookstore",
     "host": "localhost",
-    "dialect": "postgres"
+    "dialect": "postgres",
+    "timezone": "+03:00"
   },
   "production": {
     "username": "fusion",
     "password": "fusion",
     "database": "bookstore",
     "host": "localhost",
-    "dialect": "postgres"
+    "dialect": "postgres",
+    "timezone": "+03:00"
   }
 }

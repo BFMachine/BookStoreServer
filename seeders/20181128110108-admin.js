@@ -11,6 +11,8 @@ module.exports = {
         address: "г.Таганрог, ул.Петровская, д.1",
         phone: "+7(999)999-99-99",
         ref_token: "",
+        created_at: Sequelize.literal('CURRENT_TIMESTAMP'),
+        updated_at: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       {
         email: "reader",
@@ -20,6 +22,8 @@ module.exports = {
         address: "г.Таганрог, ул.Петровская, д.2",
         phone: "+7(111)111-11-11",
         ref_token: "",
+        created_at: Sequelize.literal('CURRENT_TIMESTAMP'),
+        updated_at: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       {
         email: "aaa@gmail.com",
@@ -29,7 +33,9 @@ module.exports = {
         address: "г.Таганрог, ул.Петровская, д.3",
         phone: "+7(555)555-55-55",
         ref_token: "",
-      }
+        created_at: Sequelize.literal('CURRENT_TIMESTAMP'),
+        updated_at: Sequelize.literal('CURRENT_TIMESTAMP')
+      } 
     ], {});
   },
 
