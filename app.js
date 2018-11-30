@@ -9,6 +9,8 @@ var usersRouter = require('./routes/users');
 let commentsRouter = require("./routes/comments");
 let booksRouter = require("./routes/books");
 let ordersRouter = require("./routes/orders");
+let filesRouter = require("./routes/files");
+let auth = require("./middlewares/auth");
 
 var app = express();
 
@@ -20,12 +22,17 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use(auth);
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users/comments', commentsRouter);
 app.use('/users/orders', ordersRouter);
 app.use('/users', usersRouter);
+
+app.use('/books/files', filesRouter);
 app.use('/books', booksRouter);
 
 // catch 404 and forward to error handler
