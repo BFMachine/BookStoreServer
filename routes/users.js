@@ -5,12 +5,13 @@ let db = require("../models");
 let createToken = require("../modules/createToken");
 
 // GET users listing
-//curl -v -i --header "Content-Type: application/json" --request GET  http://localhost:3000/users/1  
+//curl -v --header "Content-Type: application/json" --request GET  http://localhost:3000/users/1  
 router.get('/:userId', function(req, res, next) {
 
   	db.User.findByPk(req.params.userId, {
     	include: [
-      		{ model: db.Comment }
+			  { model: db.Comment },
+			  { model: db.Order },
     	]
   	})
   	.then(user => {

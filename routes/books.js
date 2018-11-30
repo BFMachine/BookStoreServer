@@ -2,7 +2,6 @@ var express = require('express');
 var router = express.Router();
 let db = require("../models");
 
-
 // get all books  from db
 //curl -v --header "Content-Type: application/json" --request GET  http://localhost:3000/books  
 router.get('/', function(req, res, next) {
@@ -23,10 +22,29 @@ router.get('/', function(req, res, next) {
 });
 
 // get book for id from db
-//curl -v --header "Content-Type: application/json" --request GET  http://localhost:3000/books/6  
+//curl -v --header "Content-Type: application/json" --request GET  http://localhost:3000/books/3  
 router.get('/:bookId', function(req, res, next) {
 
-	db.Book.findByPk(req.params.bookId)
+	// testing
+	/*
+	db.Book.findByPk(1, {
+		include: [{ model: db.Comment }]
+	})
+	.then((order)=>{
+		console.log(order);
+		order.getComments().then(e=>console.log(e.map(i => i.content)));
+	})
+	.catch((err) => {
+		console.error(err.message);
+	});
+	*/
+
+	db.Book.findByPk(req.params.bookId, {
+    	include: [
+			  { model: db.File },
+			  { model: db.Comment }
+    	]
+  	})
 	.then(book => {
 		
 		if(!book)

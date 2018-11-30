@@ -22,11 +22,17 @@ module.exports = {
         status: "preorder",
         created_at: Sequelize.literal('CURRENT_TIMESTAMP'),
         updated_at: Sequelize.literal('CURRENT_TIMESTAMP')
+      },
+      {
+        total_cost: 99.00,
+        status: "payed",
+        created_at: Sequelize.literal('CURRENT_TIMESTAMP'),
+        updated_at: Sequelize.literal('CURRENT_TIMESTAMP')
       }
     ], {});
   },
 
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Orders');
+    return queryInterface.bulkDelete("Orders", null, {});
   }
 };

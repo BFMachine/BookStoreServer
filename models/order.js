@@ -19,11 +19,20 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       defaultValue: sequelize.literal('CURRENT_TIMESTAMP')
     }
-  }, {
-    underscored: true
-});
+    }, {
+      underscored: true
+  });
+
   Order.associate = function(models) {
-    // associations can be defined here
+    models.Order.belongsToMany(models.Book, {
+      through: {
+          model: "OrderBooks",
+          //as: "_orders",
+          //unique: false
+        },
+        foreignKey: "order_id"
+    });
   };
+  
   return Order;
 };

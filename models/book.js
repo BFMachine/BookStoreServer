@@ -34,7 +34,26 @@ module.exports = (sequelize, DataTypes) => {
       underscored: true
   });
   Book.associate = function(models) {
-    // associations can be defined here
+    
+    models.Book.hasMany(models.File, {
+        foreignKey: "book_id",
+        onDelete: "CASCADE"
+    });
+
+    models.Book.hasMany(models.Comment, {
+        foreignKey: "book_id",
+        onDelete: "CASCADE"
+    });
+
+    models.Book.belongsToMany(models.Order, {
+        through: {
+            model: "OrderBooks",
+            //as: "_books",
+            //unique: false
+          },
+          foreignKey: "book_id",
+    });
+
   };
   return Book;
 };

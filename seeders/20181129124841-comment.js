@@ -8,28 +8,32 @@ module.exports = {
         commenter_name: "Вася",
         created_at: Sequelize.literal('CURRENT_TIMESTAMP'),
         updated_at: Sequelize.literal('CURRENT_TIMESTAMP'),
-        user_id: 2
+        user_id: 2,
+        book_id: 1
       },
       {
         content: "Второй коммент",
         commenter_name: "Петр Петрович",
         created_at: Sequelize.literal('CURRENT_TIMESTAMP'),
         updated_at: Sequelize.literal('CURRENT_TIMESTAMP'),
-        user_id: 2
+        user_id: 2,
+        book_id: 1
        },
       {
         content: "Третий коммент",
         commenter_name: "Инкогнито",
         created_at: Sequelize.literal('CURRENT_TIMESTAMP'),
         updated_at: Sequelize.literal('CURRENT_TIMESTAMP'),
-        user_id: 2
+        user_id: 2,
+        book_id: 1
       },
       {
         content: "Четвертый коммент",
         commenter_name: "unknown",
         created_at: Sequelize.literal('CURRENT_TIMESTAMP'),
         updated_at: Sequelize.literal('CURRENT_TIMESTAMP'),
-        user_id: 2
+        user_id: 2,
+        book_id: 1
       }
     ], {});
   },

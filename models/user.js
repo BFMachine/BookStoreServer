@@ -7,9 +7,6 @@ module.exports = (sequelize, DataTypes) => {
     email: {
         type: DataTypes.STRING,
         allowNull: false,
-        /*  validate: { 
-          isEmail: true
-        } */   
     },
     pass_hash: {
         type: DataTypes.STRING, 
@@ -44,7 +41,11 @@ module.exports = (sequelize, DataTypes) => {
   });
   User.associate = function(models) {
     models.User.hasMany(models.Comment, {
-    //User.hasMany(models.comment, {
+        foreignKey: "user_id",
+        onDelete: "CASCADE"
+    });
+
+    models.User.hasMany(models.Order, {
         foreignKey: "user_id",
         onDelete: "CASCADE"
     });

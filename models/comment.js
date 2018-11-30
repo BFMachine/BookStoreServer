@@ -17,14 +17,22 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         defaultValue: sequelize.literal('CURRENT_TIMESTAMP')
     },
-    user_id: {
-        type: DataTypes.INTEGER
-    }
   }, {
         underscored: true
   });
+
   Comment.associate = function(models) {
-    // associations can be defined here
+  
+    models.Comment.belongsTo(models.Book, {
+        foreignKey: "book_id",
+        onDelete: "CASCADE"
+    });
+
+    models.Comment.belongsTo(models.User, {
+        foreignKey: "user_id",
+        onDelete: "CASCADE"
+    });
   };
+
   return Comment;
 };
