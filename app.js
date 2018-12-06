@@ -10,9 +10,16 @@ let commentsRouter = require("./routes/comments");
 let booksRouter = require("./routes/books");
 let ordersRouter = require("./routes/orders");
 let filesRouter = require("./routes/files");
+let apiRouter = require("./routes/api");
 let auth = require("./middlewares/auth");
+let cors = require("cors");
 
 var app = express();
+
+let corsOptions = {
+  origin: 'http://localhost:3001'
+}
+app.use(cors(corsOptions));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -31,6 +38,7 @@ app.use('/', indexRouter);
 app.use('/users/comments', commentsRouter);
 app.use('/users/orders', ordersRouter);
 app.use('/users', usersRouter);
+app.use('/api', apiRouter);
 
 app.use('/books/files', filesRouter);
 app.use('/books', booksRouter);

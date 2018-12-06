@@ -1,8 +1,9 @@
 var express = require('express');
-var router = express.Router();
-let db = require("../models");
 var multer = require("multer");
 
+let db = require("../models");
+
+var router = express.Router();
 var storage = multer.diskStorage({
     destination: (req, file, cb) => {
       cb(null, 'public/images')
@@ -13,7 +14,7 @@ var storage = multer.diskStorage({
     }
 });
 
-var upload = multer({storage: storage});
+var upload = multer({storage});
 
 // upload file on server POST
 router.post('/', upload.single('file'), function(req, res, next) {

@@ -123,7 +123,7 @@ router.delete('/:bookId', function(req, res, next) {
 	.then((book) => {
 		if(!book) {
 			console.log(`book ${req.params.bookId} not found`);
-			return res.status(404).send(`book ${req.params.bookId} not found`);
+			return res.status(404).json({message:`book ${req.params.bookId} not found`});
 		}
 
 		console.log(`book ${req.params.bookId} successfuly deleted`);

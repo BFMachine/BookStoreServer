@@ -3,23 +3,33 @@ var router = express.Router();
 let db = require("../models");
 
 
-// GET order by id
-//curl -v -i --header "Content-Type: application/json" --request GET  http://localhost:3000/users/orders/1
-router.get('/:orderId', function(req, res, next) {
+// GET order by USER!!!! id
+//curl -v -i --header "Content-Type: application/json" --request GET  http://localhost:3000/users/orders/4
+router.get('/:userId', async function(req, res, next) {
 
-    db.Order.findByPk(req.params.orderId)
-    .then(order => {
-    
-      if(!order)
-          throw new Error("not found order id in db");
+	if(req.userId != req.params.userId) {  /// ADD admin role check!!!!!!!!!!!!!!!!!!!!!!!! debug
+		console.log(`User id: ${req.userId}, role: ${req.userRole}, request order id: ${req.params.userId}`);	
+		return;
+	}
+	
+	try {
+		const user = await db.User.findByPk(req.params.userId, {
+			include: [
+				{ model: db.Order }
+			],
+			attributes: ["email", "full_name", "phone", "role", "address", "id"],
+		});
 
-      res.setHeader("Content-Type", "application/json; charset=utf-8");
-      return res.json(JSON.stringify(order));
-  })
-  .catch((err) => {
-      console.error(err);
-      return res.status(404).send("No found order id");
-  });
+		if(!user || !user.Orders.length)
+			throw new Error("not found order id in db");
+
+		res.setHeader("Content-Type", "application/json; charset=utf-8");
+		return res.json(JSON.stringify(user));
+  }
+  catch(err) {
+      	console.error(err);
+      	return res.status(404).send("No found order");
+  }
 });
 
 // create new order
