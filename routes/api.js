@@ -5,25 +5,22 @@ let db = require("../models");
 let createToken = require("../modules/createToken");
 
 
-
 // create new refresh and access tokens
 //curl -v --header "Content-Type: application/json" --request POST --data '{"email":"temp@gmail.com","password":"111", "role":"user"}' http://localhost:3000/api/auth
 router.post('/auth', async function(req, res, next) {
 
-	let {email, password, role } = req.body;
+	let {email, password } = req.body;
 
     try {
-
         const foundUser = await db.User.findOne({
             //where: { email: "temp@gmail.com"}
             where: {
-                email,
-                //role
+                email
               }
         });
            
         if(!foundUser) {
-            console.error(`No user found, email: ${email}, role: ${role}`);
+            console.error(`No user found, email: ${email}`);
             return res.status(404).json(`Пользователь ${email} не найден`);
 
         } else {
@@ -46,7 +43,11 @@ router.post('/auth', async function(req, res, next) {
                 res.setHeader("Content-Type", "application/json; charset=utf-8");
                 return res.status(201).json(JSON.stringify({  
                     accessToken: newAccessToken,
-                    refreshToken: newRefreshToken
+                    refreshToken: newRefreshToken,
+                    role: foundUser.role,
+                    full_name: foundUser.full_name,
+                    address: foundUser.address,
+                    phone: foundUser.phone
                 }));
 
             } else {
@@ -79,7 +80,7 @@ router.get('/refresh', async function(req, res, next) {
         // find refresh token in db
         const foundUser = await db.User.findOne({
             where: { ref_token: token }, 
-            attributes: ["id", "email", "ref_token", "role" ]
+            attributes: ["id", "email", "ref_token", "role", "full_name", "address", "phone" ]
         });
 
         if(!foundUser) {
@@ -102,7 +103,11 @@ router.get('/refresh', async function(req, res, next) {
         res.setHeader("Content-Type", "application/json; charset=utf-8");
         return res.status(201).json(JSON.stringify({  
             accessToken: newAccessToken,
-            refreshToken: newRefreshToken
+            refreshToken: newRefreshToken,
+            role: foundUser.role,
+            full_name: foundUser.full_name,
+            address: foundUser.address,
+            phone: foundUser.phone
         }));
     }
     catch(err){

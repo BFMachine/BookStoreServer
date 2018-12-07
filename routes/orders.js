@@ -3,11 +3,53 @@ var router = express.Router();
 let db = require("../models");
 
 
-// GET order by USER!!!! id
+
+// GET all books from from favorite or cart
+router.get('/:orderPath/:userId', async function(req, res, next) {
+
+	switch(req.params.orderPath) {
+		case "cart" :
+		case "favorite":
+			break;
+
+		default: 
+			return next();
+	}
+
+	if(req.userId != req.params.userId) {  /// ADD admin role check, user can watch only his orders!!!!!!!!!!!!!!! debug
+		console.log(`User id: ${req.userId}, role: ${req.userRole}, request order id: ${req.params.userId}`);	
+		return;
+	}
+	
+	try {
+		const books = await db.Order.findOne({
+			where: {
+				user_id: req.params.userId,
+				status: req.params.orderPath // favorite || cart
+			},
+			include: [
+				{ model: db.Book }
+			],
+		});
+
+		if(!books || !books.Books.length)
+			throw new Error("not found books in db");
+
+		res.setHeader("Content-Type", "application/json; charset=utf-8");
+		return res.json(JSON.stringify(books.Books));
+  }
+  catch(err) {
+      	console.error(err);
+      	return res.status(404).send("No found books");
+  }
+});
+
+
+// GET orders by USER!!!! id
 //curl -v -i --header "Content-Type: application/json" --request GET  http://localhost:3000/users/orders/4
 router.get('/:userId', async function(req, res, next) {
 
-	if(req.userId != req.params.userId) {  /// ADD admin role check!!!!!!!!!!!!!!!!!!!!!!!! debug
+	if(req.userId != req.params.userId) {  /// ADD admin role check, user can watch only his orders!!!!!!!!!!!!!!! debug
 		console.log(`User id: ${req.userId}, role: ${req.userRole}, request order id: ${req.params.userId}`);	
 		return;
 	}

@@ -13,7 +13,7 @@ module.exports = {
       },
       status: {
         type: Sequelize.ENUM,
-        values: ["preorder", "payed", "delivered"]
+        values: ["preorder", "payed", "delivered", "cart", "favorite"]
       },
       pay_date: {
         type: Sequelize.DATE

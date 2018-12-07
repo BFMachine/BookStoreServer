@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
     }, 
     status: {
       type: DataTypes.ENUM,
-      values: ["preorder", "payed", "delivered"]
+      values: ["preorder", "payed", "delivered", "cart", "favorite"]
     },
     pay_date: {
       type: DataTypes.DATE
