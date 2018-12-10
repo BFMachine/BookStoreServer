@@ -4,21 +4,31 @@ let db = require("../models");
 
 // get all books  from db
 //curl -v --header "Content-Type: application/json" --request GET  http://localhost:3000/books  
-router.get('/', function(req, res, next) {
+router.get('/', async function(req, res, next) {
 
-	db.Book.findAll()
-	.then(books => {
+	try {
+
+		let books = await db.Book.findAll({
+			attributes: ["id", "author", "title", "category", "description", "price", "rank"],
+			include : [{ 
+				model: db.File, 
+				attributes: ["id", "name", "type"]
+			}]
+		})
 		
-		if(!books)
+		if(!books) {
 			throw new Error("not found any books");
+		}
 
 		res.setHeader("Content-Type", "application/json; charset=utf-8");
 		return res.json(JSON.stringify(books));
-	})
-	.catch((err) => {
+
+	}
+	catch(err) {
 		console.error(err);
 		return res.status(500).send("Error in book list");
-	});
+		
+	}
 });
 
 // get book for id from db

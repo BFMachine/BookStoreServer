@@ -27,9 +27,17 @@ router.get('/:orderPath/:userId', async function(req, res, next) {
 				user_id: req.params.userId,
 				status: req.params.orderPath // favorite || cart
 			},
-			include: [
-				{ model: db.Book }
-			],
+			attributes: ["id"],
+			include : [{
+					model: db.Book,
+					attributes: ["id", "author", "title", "category", "description", "price", "rank"],
+					include : [
+						{
+							model: db.File, 
+							attributes: ["id", "name", "type"]
+						}
+					]
+			}]
 		});
 
 		if(!books || !books.Books.length)
