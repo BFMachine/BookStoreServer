@@ -1,128 +1,115 @@
-//let controller = require("../controllers/authController");
-//let controller = require(". controllers/authController");
 
-let controller = require("../controllers/userController");
-
-module.exports = router => {
-	router.get("/:userId", controller.user_id_get);
-	router.get("/", controller.user_get);
-	router.post("/", controller.user_create_post);
-	router.put("/:userId", controller.user_update_put);
-	router.delete("/:userId", controller.user_delete);
-};
-
-
-
-/*
-
-var express = require('express');
-var router = express.Router();
-//var jwt = require('jsonwebtoken');
 let db = require("../models");
 let createToken = require("../modules/createToken");
 
-// GET users listing
+// GET users list
 //curl -v --header "Content-Type: application/json" --request GET  http://localhost:3000/users/1  
-router.get('/:userId', function(req, res, next) {
+exports.user_id_get = async (req, res) => { 
 
-  	db.User.findByPk(req.params.userId, {
-    	include: [
-			  { model: db.Comment },
-			  { model: db.Order },
-    	]
-  	})
-  	.then(user => {
+	try {
+
+		const user = await db.User.findByPk(req.params.userId, {
+			include: [
+				{ model: db.Comment },
+				{ model: db.Order },
+			]
+		});
       
-		if(!user)
+		if(!user) {
 			throw new Error("not found user id in db");
+		}
 
 		res.setHeader("Content-Type", "application/json; charset=utf-8");
 		return res.json(JSON.stringify(user));
-	})
-	.catch((err) => {
+
+	}
+	catch(err) {
 		console.error(err);
 		return res.status(404).send("No found user id");
-	});
-});
+	}
+};
 
 // get all users info from db
 //curl -v -i --header "Content-Type: application/json" --request GET  http://localhost:3000/users
-router.get('/', function(req, res, next) {
+exports.user_get = async (req, res) => { 
 
-	db.User.findAll({
-		attributes: ["email", "role", "full_name", "address", "phone"]
-	})
-	.then(users => {
+	try {
+		const users = await db.User.findAll({
+			attributes: ["email", "role", "full_name", "address", "phone"]
+		});
 		
-		if(!users)
+		if(!users) {
 			throw new Error("not found any users");
+		}
 
 		res.setHeader("Content-Type", "application/json; charset=utf-8");
 		return res.json(JSON.stringify(users));
-	})
-	.catch((err) => {
+	}
+	catch(err) {
 		console.error(err);
 		return res.status(500).send("Error in user list");
-	});
-});
+	}
+};
 
 // create new user and return tokens
 //curl -v -i --header "Content-Type: application/json" --request POST --data '{"email":"temp@gmail.com","password":"111", "role":"user", "full_name":"Балабанов Семен Семенович", "address":"г.Таганрог", "phone":"8(8634)888-88"}' http://localhost:3000/users
-router.post('/', function(req, res, next) {
+exports.user_create_post = async (req, res) => { 
 
 	let {email, role, full_name, address, phone, password} = req.body;
-	//if(user.validPassword(req.body.password)) {
+
+	try {
+		const newUser = await db.User.create({
+			email,
+			pass_hash: db.User.generateHash(password),
+			role,
+			full_name,
+			address,
+			phone,
+			ref_token: ""
+		});
 	
-	db.User.create({
-		email,
-		pass_hash: db.User.generateHash(password),
-		role,
-		full_name,
-		address,
-		phone,
-		ref_token: ""
-	}).
-	then(newUser => {
 		console.log(`New user ${newUser.email}, with id ${newUser.id} has been created.`);
 
 		let newAccessToken = createToken(newUser.id, newUser.email, newUser.role);
 		let newRefreshToken = createToken(newUser.id, newUser.email, newUser.role, true);
 	
-		newUser.updateAttributes({
+		await newUser.updateAttributes({
 			ref_token: newRefreshToken
-		})
-		.catch(err=>console.log(`Error on update refresh token in base ${err}`));
+		});
 
 		res.setHeader("Content-Type", "application/json; charset=utf-8");
 		return res.status(201).json(JSON.stringify({  
 			accessToken: newAccessToken,
 			refreshToken: newRefreshToken
 		}));
-	})
-	.catch((err) => {
+	}
+	catch(err) {
 		console.error(err);
 		return res.status(500).send("Error on create new user");
-	});
-});
+	}
+};
 
 // change user data only fields send in body, no password, email and role changed
 //curl -v --header "Content-Type: application/json" --request PUT --data '{"email":"temp@gmail.com","password":"111", "role":"user", "full_name":"Балабанов Семен Семенович", "address":"г.Таганрог", "phone":"8(8634)888-88"}' http://localhost:3000/users
-router.put('/:userId', function(req, res, next) {
+exports.user_update_put = async (req, res) => { 
 
 	let update = req.body;
 
-	if(update.password)
+	if(update.password) {
 		delete update.password;
+	}
 
-	if(update.email)
+	if(update.email) {
 		delete update.email;
+	}
 
-	if(update.role)
+	if(update.role) {
 		delete update.role;
+	}
 
-	db.User.findByPk(req.params.userId)
-	.then(user => {
-
+	try {
+		const user = await db.User.findByPk(req.params.userId);
+	
 		if(!user) {
 			console.log(`user ${req.params.userId} not found`);
 			return res.status(404).send(`user ${req.params.userId} not found`);
@@ -130,28 +117,28 @@ router.put('/:userId', function(req, res, next) {
 
 		console.log(`change user ${user.email}, with id ${user.id}`);
 	
-		user.updateAttributes(update)
-		.catch(err=>console.log(`Error on update user in db ${err}`));
-
+		await user.updateAttributes(update);
+		
 		res.setHeader("Content-Type", "application/json; charset=utf-8");
 		return res.sendStatus(200);
-	})
-	.catch((err) => {
+	}
+	catch(err) {
 		console.error(err);
 		return res.status(500).send("Error on update user");
-	});
-});
+	}
+};
 
 // delete user from db
 //curl -v -i --header "Content-Type: application/json" --request DELETE http://localhost:3000/users/22
-router.delete('/:userId', function(req, res, next) {
+exports.user_delete = async (req, res) => { 
 
-	db.User.destroy({
-		where: {
-		  id: req.params.userId
-		}
-	})
-	.then((user) => {
+	try {
+		const user = await db.User.destroy({
+			where: {
+				id: req.params.userId
+			}
+		});
+	
 		if(!user) {
 			console.log(`user ${req.params.userId} not found`);
 			return res.status(404).send(`user ${req.params.userId} not found`);
@@ -159,13 +146,9 @@ router.delete('/:userId', function(req, res, next) {
 
 		console.log(`user ${req.params.userId} successfuly deleted`);
 		return res.sendStatus(204);
-	})
-	.catch((err) => {
+	}
+	catch(err) {
 		console.error(err);
 		return res.status(500).send("Error delete user");
-	});
-});
-
-module.exports = router;
-
-*/
+	}
+};

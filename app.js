@@ -4,15 +4,16 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+//var indexRouter = require('./routes/index');
+//var usersRouter = require('./routes/users');
 let commentsRouter = require("./routes/comments");
 let booksRouter = require("./routes/books");
 let ordersRouter = require("./routes/orders");
 let filesRouter = require("./routes/files");
-let apiRouter = require("./routes/api");
+//let apiRouter = require("./routes/api");
 let auth = require("./middlewares/auth");
 let cors = require("cors");
+let cart = require("./routes/cart");
 
 var app = express();
 
@@ -33,14 +34,22 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(auth);
 
-app.use('/', indexRouter);
-app.use('/users/comments', commentsRouter);
-app.use('/users/orders', ordersRouter);
-app.use('/users', usersRouter);
-app.use('/api', apiRouter);
+//app.use('/', indexRouter);
+//app.use('/users/comments', commentsRouter);
+/*app.use('/users/orders', ordersRouter); !!!!!!!!!!!!!!!!!!!!!!!!*/
+//app.use('/users', usersRouter);
+//app.use('/api', apiRouter);
 
-app.use('/books/files', filesRouter);
-app.use('/books', booksRouter);
+//let router = express.Router();
+//cart(router);
+
+require("./routes")(app);
+
+//app.use('/cart', router);
+
+//app.use('/books/files', filesRouter);
+//app.use('/books', booksRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -1,23 +1,8 @@
-let controller = require("../controllers/ordersController");
-
-module.exports = router => {
-	router.get("/:orderPath/:userId", controller.favorit_cart_get);
-	router.get("/:userId", controller.orders_get);
-	router.post("/", controller.orders_create_post);
-	router.put("/:orderId", controller.orders_update_put);
-	router.delete("/:orderId", controller.orders_delete);
-};
-
-
-/*
-var express = require('express');
-var router = express.Router();
 let db = require("../models");
 
-
-
+//exports.comment_id_get = async (req, res) => { 
 // GET all books from from favorite or cart
-router.get('/:orderPath/:userId', async function(req, res, next) {
+exports.favorit_cart_get = async (req, res, next) => { 
 
 	switch(req.params.orderPath) {
 		case "cart" :
@@ -59,15 +44,15 @@ router.get('/:orderPath/:userId', async function(req, res, next) {
 		return res.json(JSON.stringify(books.Books));
   }
   catch(err) {
-      	console.error(err);
-      	return res.status(404).send("No found books");
+    console.error(err);
+    return res.status(404).send("No found books");
   }
-});
+};
 
 
 // GET orders by USER!!!! id
 //curl -v -i --header "Content-Type: application/json" --request GET  http://localhost:3000/users/orders/4
-router.get('/:userId', async function(req, res, next) {
+exports.orders_get = async (req, res) => { 
 
 	if(req.userId != req.params.userId) {  /// ADD admin role check, user can watch only his orders!!!!!!!!!!!!!!! debug
 		console.log(`User id: ${req.userId}, role: ${req.userRole}, request order id: ${req.params.userId}`);	
@@ -89,14 +74,14 @@ router.get('/:userId', async function(req, res, next) {
 		return res.json(JSON.stringify(user));
   }
   catch(err) {
-      	console.error(err);
-      	return res.status(404).send("No found order");
+    console.error(err);
+    return res.status(404).send("No found order");
   }
-});
+};
 
 // create new order
 //curl -v --header "Content-Type: application/json" --request POST --data '{"total_cost":"33.33","status":"payed"}' http://localhost:3000/users/orders
-router.post('/', function(req, res, next) {
+exports.orders_create_post = async (req, res) => { 
 
 	let {total_cost, status, pay_date} = req.body;
 	
@@ -113,11 +98,11 @@ router.post('/', function(req, res, next) {
 		console.error(err);
 		return res.status(500).send("Error on create new order");
 	});
-});
+};
 
 // change order data only fields send in body
 //curl -v --header "Content-Type: application/json" --request PUT --data '{"total_cost":"33.33","status":"payed"}' http://localhost:3000/users/orders/3
-router.put('/:orderId', function(req, res, next) {
+exports.orders_update_put = async (req, res) => { 
 
 	let update = req.body;
 
@@ -141,11 +126,12 @@ router.put('/:orderId', function(req, res, next) {
 		console.error(err);
 		return res.status(500).send("Error on update order");
 	});
-});
+};
 
 // delete order from db
 //curl -v -i --header "Content-Type: application/json" --request DELETE http://localhost:3000/users/orders/2
-router.delete('/:orderId', function(req, res, next) {
+exports.orders_delete = async (req, res) => { 
+
 
 	db.Order.destroy({
 		where: {
@@ -165,8 +151,4 @@ router.delete('/:orderId', function(req, res, next) {
 		console.error(err);
 		return res.status(500).send("Error delete order");
 	});
-});
-
-module.exports = router;
-
-*/
+};

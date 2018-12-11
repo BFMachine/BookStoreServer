@@ -1,9 +1,22 @@
+
+let controller = require("../controllers/commentController");
+
+module.exports = router => {
+  router.get("/:userId", controller.comment_id_get);
+  router.post("/:BookId", controller.comment_id_book);
+};
+
+
+
+
+/*
+
 var express = require('express');
 var router = express.Router();
 let db = require("../models");
 
 
-/* GET users listing. */
+// GET users listing. 
 //curl -v -i -H "Content-Type: application/json" -H "authorization:Bearer eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NDQ4ODQ1MjI3MzIsImlkIjo0LCJyb2xlIjoidXNlciIsImVtYWlsIjoidGVtcEBnbWFpbC5jb20ifQ.Q7_KlBWCjNiLvb10E1KWuvEWmgLPqTQpR3OvL5oWzDg" --request GET  http://localhost:3000/users/comments/2  
 router.get('/:userId', function (req, res, next) {
 
@@ -98,3 +111,5 @@ router.post('/:BookId', async (req, res, next) => {
 });
 
 module.exports = router;
+*/
+

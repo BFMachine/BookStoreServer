@@ -1,10 +1,12 @@
-var express = require('express');
-var router = express.Router();
+let controller = require("../controllers/authController");
 
-let db = require("../models");
-let createToken = require("../modules/createToken");
+module.exports = router => {
+  router.post("/auth", controller.auth);
+  router.get("/refresh", controller.refresh);
+};
 
 
+/*
 // create new refresh and access tokens
 //curl -v --header "Content-Type: application/json" --request POST --data '{"email":"temp@gmail.com","password":"111", "role":"user"}' http://localhost:3000/api/auth
 router.post('/auth', async function(req, res, next) {
@@ -116,4 +118,6 @@ router.get('/refresh', async function(req, res, next) {
 	}
 });
 
-module.exports = router;    
+module.exports = router;  
+
+*/

@@ -1,3 +1,12 @@
+let controller = require("../controllers/fileController");
+
+module.exports = router => {
+    router.post("/", controller.multer_mw, controller.file_upload);
+};
+
+
+
+/*
 var express = require('express');
 var multer = require("multer");
 
@@ -37,3 +46,5 @@ router.post('/', upload.single('file'), function(req, res, next) {
 });
 
 module.exports = router;
+
+*/
