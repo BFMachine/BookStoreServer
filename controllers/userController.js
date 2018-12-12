@@ -1,4 +1,3 @@
-
 let db = require("../models");
 let createToken = require("../modules/createToken");
 

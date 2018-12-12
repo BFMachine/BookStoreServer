@@ -1,7 +1,7 @@
 let db = require("../models");
 
-//exports.comment_id_get = async (req, res) => { 
 // GET all books from from favorite or cart
+//curl -v -i --header "Content-Type: application/json" --request GET  http://localhost:3000/orders/cart/4
 exports.favorit_cart_get = async (req, res, next) => { 
 
 	switch(req.params.orderPath) {
@@ -17,7 +17,7 @@ exports.favorit_cart_get = async (req, res, next) => {
 		console.log(`User id: ${req.userId}, role: ${req.userRole}, request order id: ${req.params.userId}`);	
 		return;
 	}
-	
+
 	try {
 		const books = await db.Order.findOne({
 			where: {
@@ -49,9 +49,8 @@ exports.favorit_cart_get = async (req, res, next) => {
   }
 };
 
-
 // GET orders by USER!!!! id
-//curl -v -i --header "Content-Type: application/json" --request GET  http://localhost:3000/users/orders/4
+//curl -v -i --header "Content-Type: application/json" --request GET  http://localhost:3000/orders/4
 exports.orders_get = async (req, res) => { 
 
 	if(req.userId != req.params.userId) {  /// ADD admin role check, user can watch only his orders!!!!!!!!!!!!!!! debug
@@ -80,65 +79,64 @@ exports.orders_get = async (req, res) => {
 };
 
 // create new order
-//curl -v --header "Content-Type: application/json" --request POST --data '{"total_cost":"33.33","status":"payed"}' http://localhost:3000/users/orders
+//curl -v --header "Content-Type: application/json" --request POST --data '{"total_cost":"77.77","status":"payed"}' http://localhost:3000/orders
 exports.orders_create_post = async (req, res) => { 
 
 	let {total_cost, status, pay_date} = req.body;
 	
-	db.Order.create({
-        total_cost,
-        status,
-        pay_date
-	}).
-	then(newOrder => {
+	try {
+		const newOrder = await db.Order.create({
+			total_cost,
+			status,
+			pay_date
+		});
+
 		console.log(`New order ${newOrder.title}, with id ${newOrder.id} has been created.`);
-        return res.sendStatus(201);
-	})
-	.catch((err) => {
+		return res.sendStatus(201);
+		
+	}
+	catch(err) {
 		console.error(err);
 		return res.status(500).send("Error on create new order");
-	});
+	}
 };
 
 // change order data only fields send in body
-//curl -v --header "Content-Type: application/json" --request PUT --data '{"total_cost":"33.33","status":"payed"}' http://localhost:3000/users/orders/3
+//curl -v --header "Content-Type: application/json" --request PUT --data '{"total_cost":"33.33","status":"payed"}' http://localhost:3000/orders/3
 exports.orders_update_put = async (req, res) => { 
 
 	let update = req.body;
 
-	db.Order.findByPk(req.params.orderId)
-	.then(order => {
-
+	try {
+		const order = await db.Order.findByPk(req.params.orderId);
+	
 		if(!order) {
 			console.log(`order ${req.params.orderId} not found`);
 			return res.status(404).send(`order ${req.params.orderId} not found`);
 		}
 
 		console.log(`change order with id ${order.id}`);
-	
-		order.updateAttributes(update)
-		.catch(err=>console.log(`Error on update order in db ${err}`));
-
-		res.setHeader("Content-Type", "application/json; charset=utf-8");
+		await order.updateAttributes(update);
 		return res.sendStatus(200);
-	})
-	.catch((err) => {
+
+	}
+	catch(err) {
 		console.error(err);
 		return res.status(500).send("Error on update order");
-	});
+	}
 };
 
 // delete order from db
-//curl -v -i --header "Content-Type: application/json" --request DELETE http://localhost:3000/users/orders/2
+//curl -v -i --header "Content-Type: application/json" --request DELETE http://localhost:3000/orders/2
 exports.orders_delete = async (req, res) => { 
 
-
-	db.Order.destroy({
-		where: {
-		  id: req.params.orderId
-		}
-	})
-	.then((order) => {
+	try {
+		const order = await db.Order.destroy({
+			where: {
+				id: req.params.orderId
+			}
+		});
+	
 		if(!order) {
 			console.log(`order ${req.params.orderId} not found`);
 			return res.status(404).send(`order ${req.params.orderId} not found`);
@@ -146,9 +144,9 @@ exports.orders_delete = async (req, res) => {
 
 		console.log(`order ${req.params.orderId} successfuly deleted`);
 		return res.sendStatus(204);
-	})
-	.catch((err) => {
+	}
+	catch(err) {
 		console.error(err);
 		return res.status(500).send("Error delete order");
-	});
+	}
 };
