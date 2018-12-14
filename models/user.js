@@ -55,11 +55,11 @@ module.exports = (sequelize, DataTypes) => {
 
   User.generateHash = function (password) {
     return bcrypt.hashSync(password, saltRounds);
-  }
+  };
 
   User.prototype.validPassword = function (password) {
     return bcrypt.compareSync(password, this.pass_hash);
-  }
+  };
 
   return User;
 };

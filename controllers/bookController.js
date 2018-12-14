@@ -19,7 +19,7 @@ exports.book_all_get = async (req, res) => {
 		}
 
 		res.setHeader("Content-Type", "application/json; charset=utf-8");
-		return res.json(JSON.stringify(books));
+		return res.json({ books });
 
 	}
 	catch(err) {
@@ -37,7 +37,10 @@ exports.book_id_get = async (req, res) => {
     const book = await db.Book.findByPk(req.params.bookId, {
       include: [
         { model: db.File },
-        { model: db.Comment }
+        {
+					model: db.Comment,
+					attributes: ["id", "content", "commenter_name", "created_at"]
+				}
       ]
     });
 	
@@ -45,7 +48,7 @@ exports.book_id_get = async (req, res) => {
 			throw new Error("not found book on id");
 
 		res.setHeader("Content-Type", "application/json; charset=utf-8");
-		return res.json(JSON.stringify(book));
+		return res.json({ book });
 	}
 	catch(err) {
 		console.error(err);
@@ -68,9 +71,9 @@ exports.book_create_post = async (req, res) => {
       rank,
       category
     });
-    
+
     console.log(`New book ${newBook.title}, with id ${newBook.id} has been created.`);
-    return res.sendStatus(201);
+    return res.status(201).json({ book_id: newBook.id });
 	}
 	catch(err) {
 		console.error(err);

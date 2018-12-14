@@ -17,11 +17,11 @@ exports.multer_mw = upload.single('file');
 
 exports.file_upload = async (req, res) => {
     
-  console.log("book id =" + req.body.book_id);
+  console.log("book id =" + req.body.book_id); 
 
   try {
     const file = await db.File.create({
-      type: "cover",
+      type: req.body.type,
       name: "images/" + req.file.filename,
       book_id: req.body.book_id
     });

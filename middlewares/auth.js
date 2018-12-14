@@ -4,15 +4,6 @@ var jwt = require('jsonwebtoken');
 // curl -v --header "authorization:Bearer eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NDQ4ODQ1MjI3MzIsImlkIjo0LCJyb2xlIjoidXNlciIsImVtYWlsIjoidGVtcEBnbWFpbC5jb20ifQ.Q7_KlBWCjNiLvb10E1KWuvEWmgLPqTQpR3OvL5oWzDg" --request GET  http://localhost:3000/books/1
 function auth(req, res, next) {
 
-    // skip path
-    if(req.path == "/books" && req.method == "GET") {
-        return next();
-    }
-
-    if((req.path == "/users" || req.path == "/api/auth") && req.method == "POST") {
-        return next();
-    }
-        
     const header = req.headers["authorization"];
     let token;
 

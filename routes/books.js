@@ -1,9 +1,10 @@
 let controller = require("../controllers/bookController");
+let auth = require("../middlewares/auth");
 
 module.exports = router => {
-	router.get("/", controller.book_all_get);
 	router.get("/:bookId", controller.book_id_get);
-	router.post("/", controller.book_create_post);
-	router.put("/:bookId", controller.book_update_put);
-	router.delete("/:bookId", controller.book_delete);
+	router.get("/", controller.book_all_get);
+	router.post("/", auth, controller.book_create_post);
+	router.put("/:bookId", auth, controller.book_update_put);
+	router.delete("/:bookId", auth, controller.book_delete);
 };

@@ -36,7 +36,7 @@ exports.cart_add = async function(req, res) {
 exports.cart_delete = async function(req, res) {
 
 	try {
-		const cartDb = await db.Order.findAll({
+		const cartDb = await db.Order.findOne({
       where: {
         status: "cart",
         user_id: req.userId
@@ -47,12 +47,12 @@ exports.cart_delete = async function(req, res) {
       }]
 		});
 
-    if(!cartDb[0]) {
+    if(!cartDb) {
 			console.log(`Error find cart for ${req.userId}`);
 			return res.status(500).send("Error on create new item in cart");
     }
     
-    await cartDb[0].removeBooks([req.params.id]);
+    await cartDb.removeBooks([req.params.id]);
     
 		console.log(`Remove book ${req.body.id}, in cart user ${req.userId} successfully.`);
     return res.sendStatus(201);

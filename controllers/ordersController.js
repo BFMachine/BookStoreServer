@@ -38,7 +38,7 @@ exports.favorit_cart_get = async (req, res, next) => {
 		});
 
 		if(!books || !books.Books.length)
-			throw new Error("not found books in db");
+			throw new Error(`not found ${req.params.orderPath} books in db`);
 
 		res.setHeader("Content-Type", "application/json; charset=utf-8");
 		return res.json(JSON.stringify(books.Books));
