@@ -52,6 +52,7 @@ module.exports = (sequelize, DataTypes) => {
             //unique: false
           },
           foreignKey: "book_id",
+          onDelete: "CASCADE"
     });
 
   };

@@ -28,20 +28,22 @@ exports.favorit_cart_get = async (req, res, next) => {
 			include : [{
 					model: db.Book,
 					attributes: ["id", "author", "title", "category", "description", "price", "rank"],
-					include : [
-						{
-							model: db.File, 
-							attributes: ["id", "name", "type"]
-						}
-					]
-			}]
+					include : [{
+						model: db.File, 
+						attributes: ["id", "name", "type"]
+					}]
+			}],
+			order: [
+				[ db.Book, "id", "ASC" ],
+				[ db.Book, db.File, "id", "ASC" ]
+			]
 		});
 
 		if(!books || !books.Books.length)
 			throw new Error(`not found ${req.params.orderPath} books in db`);
 
 		res.setHeader("Content-Type", "application/json; charset=utf-8");
-		return res.json(JSON.stringify(books.Books));
+		return res.json([...books.Books ]);
   }
   catch(err) {
     console.error(err);
@@ -61,16 +63,20 @@ exports.orders_get = async (req, res) => {
 	try {
 		const user = await db.User.findByPk(req.params.userId, {
 			include: [
-				{ model: db.Order }
+				{ model: db.Order },
 			],
 			attributes: ["email", "full_name", "phone", "role", "address", "id"],
+			order : [
+				[ db.Order, "id", "ASC"]
+			]
 		});
 
 		if(!user || !user.Orders.length)
 			throw new Error("not found order id in db");
 
 		res.setHeader("Content-Type", "application/json; charset=utf-8");
-		return res.json(JSON.stringify(user));
+		//return res.json(JSON.stringify(user));
+		return res.json([...user.Orders]);
   }
   catch(err) {
     console.error(err);

@@ -30,7 +30,8 @@ module.exports = (sequelize, DataTypes) => {
           //as: "_orders",
           //unique: false
         },
-        foreignKey: "order_id"
+        foreignKey: "order_id",
+        onDelete: "CASCADE"
     });
   };
   

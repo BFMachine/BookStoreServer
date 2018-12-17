@@ -21,7 +21,7 @@ exports.cart_add = async function(req, res) {
 			return res.status(500).send("Error on create new item in cart");
     }
     
-    await cartDb[0].addBooks([req.body.id]);
+    await cartDb[0].addBooks(req.body.id);
 
 		console.log(`New book ${req.body.id}, in cart user ${req.userId} has been created.`);
     return res.sendStatus(201);
