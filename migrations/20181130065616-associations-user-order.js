@@ -21,6 +21,6 @@ module.exports = {
     return queryInterface.removeColumn(
       'Orders', 
       'user_id' 
-    )
+    );
   }
 };

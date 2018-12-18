@@ -21,6 +21,6 @@ module.exports = {
     return queryInterface.removeColumn(
       'Comments', 
       'book_id' 
-    )
+    );
   }
 };
