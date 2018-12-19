@@ -29,7 +29,10 @@ exports.book_all_get = async (req, res) => {
 			include: [{
 				model: db.File,
 				attributes: ["id", "name", "type"]
-			}]
+			}],
+			order: [
+				[ db.File, "id", "ASC" ]
+			]
 		};
 
 		if (!req.query.page_number) {
@@ -41,14 +44,19 @@ exports.book_all_get = async (req, res) => {
 		}
 		
 		filter.offset = (req.query.page_number - 1) * req.query.page_size;
-		filter.limit = req.query.page_size;
-		const max_pages = Math.ceil(count / req.query.page_size);
+		filter.limit = +req.query.page_size;
+		
+		if(req.query.sort) {
+			filter.order.unshift([req.query.sort, req.query.direction]); ///!!!!!!!!!!!!!!!!!!
+		}
 
 		let books = await db.Book.findAll(filter);
 
 		if (!books) {
 			throw new Error("not found any books");
 		}
+
+		const max_pages = Math.ceil(count / req.query.page_size);
 
 		res.setHeader("Content-Type", "application/json; charset=utf-8");
 		return res.json({ books, max_pages });
@@ -57,7 +65,6 @@ exports.book_all_get = async (req, res) => {
 	catch (err) {
 		console.error(err);
 		return res.status(500).send("Error in book list");
-
 	}
 };
 
@@ -66,17 +73,27 @@ exports.book_all_get = async (req, res) => {
 exports.book_id_get = async (req, res) => {
 
 	try {
-		const book = await db.Book.findByPk(req.params.bookId, {
+
+		let filter = {
 			include: [
-				{ model: db.File },
+				{ 
+					model: db.File,
+					attributes: ["id", "name", "type"]
+				},
 				{
 					model: db.Comment,
 					attributes: ["id", "content", "commenter_name", "created_at"]
 				}
-			]
-		});
+			],
+			order: [
+					[ db.File, "id", "ASC" ],
+					[ db.Comment, "id", "ASC" ]
+			]	
+		};
 
-		if (!book)
+		const book = await db.Book.findByPk(req.params.bookId, filter);
+
+		if(!book)
 			throw new Error("not found book on id");
 
 		res.setHeader("Content-Type", "application/json; charset=utf-8");
