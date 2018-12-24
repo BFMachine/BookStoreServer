@@ -9,9 +9,9 @@ function createToken(id, email, role, longExp = false) {
         id,
         role,
         email
-    }
+    };
 
-    token = jwt.sign(JSON.stringify(payload), SECRET_KEY); 
+    let token = jwt.sign(JSON.stringify(payload), SECRET_KEY); 
     return token;    
 }
 

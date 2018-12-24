@@ -1,5 +1,86 @@
 let db = require("../models");
 
+
+exports.book_search = async (req, res) => {
+	
+	try {
+
+		const Op = db.Sequelize.Op;
+
+		let filter = {
+		/*
+			where: [
+				{
+					id: ':name'
+				},
+				db.Sequelize.literal('MATCH (title, author, description) AGAINST ("" IN NATURAL LANGUAGE MODE)')
+			],
+			replacements: {
+				name: 1
+			} */
+
+			where: {
+				$or: [
+					{ "title": { [Op.iLike]: "%" + req.query.text + "%" } },
+					{ "author": { [Op.iLike]: "%" + req.query.text + "%" } }
+					
+				]
+			}
+		};
+
+		if (req.query.category) {
+			filter.where.category = req.query.category;
+		}
+
+		if (req.query.rank) {
+			filter.where.rank = req.query.rank;
+		}
+
+		if (req.query.author) {
+			filter.where.author = req.query.author;
+		}
+
+		const count = await db.Book.count(filter);
+
+		filter = {...filter,
+			attributes: ["id", "author", "title", "category", "description", "price", "rank"],
+			include: [{
+				model: db.File,
+				attributes: ["id", "name", "type"]
+			}],
+			order: [
+				[ db.File, "id", "ASC" ]
+			]
+		};
+
+		const page_number = req.query.page_number || 1;
+		const page_size = req.query.page_size || count;
+				
+		filter.offset = (page_number - 1) * page_size;
+		filter.limit = +page_size;
+		
+		if(req.query.sort) {
+			filter.order.unshift([req.query.sort, req.query.direction]);
+		}
+
+		let books = await db.Book.findAll(filter);
+
+		if (!books) {
+			throw new Error("not found any books");
+		}
+
+		const max_pages = Math.ceil(count / page_size);
+
+		res.setHeader("Content-Type", "application/json; charset=utf-8");
+		return res.json({ books, max_pages });
+	}
+	catch (err) {
+		console.error(err);
+		return res.status(500).send("Error in book list");
+	}
+};
+
+
 // get all books  from db
 //curl -v --header "Content-Type: application/json" --request GET  http://localhost:3000/books  
 exports.book_all_get = async (req, res) => {
@@ -35,16 +116,11 @@ exports.book_all_get = async (req, res) => {
 			]
 		};
 
-		if (!req.query.page_number) {
-			req.query.page_number = 1;
-		}
-
-		if (!req.query.page_size) {
-			req.query.page_size = count;
-		}
+		const page_number = req.query.page_number || 1;
+		const page_size = req.query.page_size || count;
 		
-		filter.offset = (req.query.page_number - 1) * req.query.page_size;
-		filter.limit = +req.query.page_size;
+		filter.offset = (page_number - 1) * page_size;
+		filter.limit = +page_size;
 		
 		if(req.query.sort) {
 			filter.order.unshift([req.query.sort, req.query.direction]); ///!!!!!!!!!!!!!!!!!!
@@ -56,7 +132,7 @@ exports.book_all_get = async (req, res) => {
 			throw new Error("not found any books");
 		}
 
-		const max_pages = Math.ceil(count / req.query.page_size);
+		const max_pages = Math.ceil(count / page_size);
 
 		res.setHeader("Content-Type", "application/json; charset=utf-8");
 		return res.json({ books, max_pages });

@@ -7,6 +7,7 @@ module.exports = (app) => {
   Object.keys(routes).forEach((routeName) => {
 
     const router = express.Router();
+    /* eslint-disable import/no-dynamic-require */
     require(`./${routeName}`)(router);
     app.use(`/${changeCase.paramCase(routeName)}`, router);
     

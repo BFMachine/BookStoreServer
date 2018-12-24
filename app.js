@@ -5,8 +5,6 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 let cors = require("cors");
 
-let auth = require("./middlewares/auth");
-
 var app = express();
 
 let corsOptions = {
@@ -25,11 +23,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use(express.static(path.join(__dirname, "public")));
-//app.use(auth);
 
 require("./routes")(app);
-
-//app.get("/", );
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -1,4 +1,5 @@
 let db = require("../models");
+let postEmails = require("../modules/postEmails");
 
 // GET users listing. 
 //curl -v -i -H "Content-Type: application/json" -H "authorization:Bearer eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NDQ4ODQ1MjI3MzIsImlkIjo0LCJyb2xlIjoidXNlciIsImVtYWlsIjoidGVtcEBnbWFpbC5jb20ifQ.Q7_KlBWCjNiLvb10E1KWuvEWmgLPqTQpR3OvL5oWzDg" --request GET  http://localhost:3000/comments/2  
@@ -46,6 +47,9 @@ exports.comment_id_book = async (req, res, ) => {
       book_id: req.params.BookId,
       user_id: req.userId
     });
+
+    postEmails(req.params.BookId);
+
     console.log(`New comment, with id ${newComment.id} has been created.`);
     console.log(commenter_name);
     return res.sendStatus(201);
