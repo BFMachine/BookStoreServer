@@ -7,7 +7,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
+            "name": "Launch server",
             "program": "${workspaceFolder}/bin/www",
             "env": { "_SECRET": "OiIxMjM0NTY3ODiaWF0IjoxNTE2MjM5MDIyfQQdbGtzFxHEVCbVuUjNSF7c0j9eag5E4jym8" }
         },
@@ -21,7 +21,10 @@
             "type": "node",
             "request": "launch",
             "name": "Launch fillDB",
-            "program": "${workspaceFolder}/modules/fillDB.js"
+            "program": "${workspaceFolder}/modules/fillDB.js",
+            "runtimeArgs": [
+                "--expose-gc"
+            ],
         }
     ]
 }

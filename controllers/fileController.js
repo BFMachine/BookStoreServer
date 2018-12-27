@@ -16,8 +16,6 @@ let upload = multer({storage});
 exports.multer_mw = upload.single('file');
 
 exports.file_upload = async (req, res) => {
-    
-  console.log("book id =" + req.body.book_id); 
 
   try {
     const file = await db.File.create({
