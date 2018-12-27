@@ -2,17 +2,24 @@ const axios = require("axios");
 const fs = require('fs'); 
 
 const db = require("../models");
-const InfoLoader = require("../scrape/scrape");
+const webScraper = require("./scrape");
 
 
 class FillDB {
   constructor() {
-    this._destination = process.cwd() + "/public/images";
+    this._destination = process.cwd() + "/public/images/";
   }
 
-  async run() {
+  async fill({number, visible}) {
     
-    const contentDB = await InfoLoader.getDBContent();
+    if(number) {
+      webScraper.setNumberLoadBooks(number);
+    }
+    if(visible) {
+      webScraper.setVisible(visible);
+    }
+
+    const contentDB = await webScraper.getDBContent();
 
     for(let i = 0; i < contentDB.length; i++) {
       for(let j = 0; j < contentDB[i].length; j++) {
@@ -64,20 +71,18 @@ class FillDB {
           console.error(err);
         }
       }
-
     }
-
     console.log("work complete");
-
   }
 
   async _getAndStoreFile(path, type, book_id) {
     const filename = "file-" + Date.now() + path.match(/\.[^/.]+$/);
+    console.log("load " + filename);
 
     return new Promise( (resolve, reject) => {
 
-        const fileStream = fs.createWriteStream("public/images/" + filename);
-
+      const fileStream = fs.createWriteStream(this._destination + filename);
+        //console.log("1 - axios");
         axios.request({
           responseType: "stream",
           url: path,
@@ -87,8 +92,9 @@ class FillDB {
           }
         })
         .then(response => {
+          //console.log("2 - response axios");
           response.data.pipe(fileStream);
-          
+          //console.log("3 - file created");
           db.File.create({
             type,
             name: "images/" + filename,
@@ -96,7 +102,7 @@ class FillDB {
           })
           .then(file => {
             if(file) {
-              console.log(`File added successfuly ${"public/images/" + filename}, with id ${file.id} has been created.`);
+              console.log(`File added ${this._destination + filename}, with id ${file.id} for book id ${book_id} has been created.`);
               resolve(true);
             }
           })
@@ -104,13 +110,14 @@ class FillDB {
             console.error("error load image " + err);
             reject(err);
           });
+
         })
         .catch(err => {
           console.error("error load image " + err);
           //fs.end();
-          fs.unlink("public/images/" + filename, err => {
+          fs.unlink(this._destination + filename, err => {
             if (err) throw err;
-            console.error("public/images/" + filename + " was deleted");
+            console.error(this._destination + filename + " was deleted");
           });
           resolve(false);
         });
@@ -118,5 +125,7 @@ class FillDB {
   }
 }
 
-const instanse = new FillDB();
-instanse.run();
+const fillDB = new FillDB();
+//instanse.fill();
+
+module.exports = fillDB;

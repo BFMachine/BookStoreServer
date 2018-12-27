@@ -25,12 +25,15 @@ class BookInfoLoader {
     this._numberLoadedBooksInCategory = numberLoadedBooksInCategory;
     this._database = null;
     this._fileName = "loaded_db.json";
+    this._visible = false;
   }
 
-  async setNumberLoadBooks(number) {
-    this._numberLoadedBooksInCategory = number;     
-    this._database = await this._run();  
-    this._writeFile(this._database);
+  setNumberLoadBooks(number) {
+    this._numberLoadedBooksInCategory = +number;     
+  }
+
+  setVisible(visible) {
+    this._visible = visible;     
   }
 
   async _readFile() {
@@ -40,7 +43,14 @@ class BookInfoLoader {
         if(error) {
           return reject(error); 
         }
-        resolve(JSON.parse(data));
+        let result;
+        try {
+          result = JSON.parse(data);
+        }
+        catch(err) {
+          return reject(err); 
+        }
+        resolve(result);
       });
     });
   }
@@ -70,7 +80,7 @@ class BookInfoLoader {
 
   async getDBContent(forseLoad = false) {
 
-    if(!this._database) {
+    if(!this._database || forseLoad || this._database[0].length != this._numberLoadedBooksInCategory) {
       let db;
       try {
         db = await this._readFile();
@@ -79,9 +89,9 @@ class BookInfoLoader {
         console.log("error load file " + err);
       }
 
-      if(forseLoad || !db) {
+      if(forseLoad || !db || db[0].length != this._numberLoadedBooksInCategory) {
         this._database = await this._run();  
-        this._writeFile(this._database);
+        await this._writeFile(this._database);
       } else {
          this._database = db;
       }
@@ -94,31 +104,31 @@ class BookInfoLoader {
 
     try {
       const browser = await puppeteer.launch({
-        headless: true,
+        headless: !this._visible,
         devtools: false
       });
 
       const listCategory = await this._loadListCategory();
       let result = [];
       
+      console.time("Load data");
+
       /// in view mode: 174 sec 3 books in any category 5 - 518 sec /// in hide mode: 5 -> 79 sec 10, -> 133 sec, 20 -> 273 sec 
-      console.time("Load data"); 
-        result = await Promise.all(listCategory.map(async (item) => {
-        return await this.loadCategory(item.path, this._numberLoadedBooksInCategory, browser);
-      }));
-      console.timeEnd("Load data");
-      
+      if(!this._visible) {
+          result = await Promise.all(listCategory.map(async (item) => {
+          return await this.loadCategory(item.path, this._numberLoadedBooksInCategory, browser);
+        }));
+      } else {
+
       /// in view mode: 112 sec 3 books in any category /// in hide mode: 5 - 151 sec, 10 - 285
-      /*
-      console.time("Load data"); 
-      for(let item of listCategory) {
-        result.push({
-          id: item.id,
-          books: await this.loadCategory(item.path, _numberLoadedBooksInCategory, browser)
-        });
+        for(let item of listCategory) {
+          result.push(
+            await this.loadCategory(item.path, this._numberLoadedBooksInCategory, browser)
+          );
+        }
       }
+      
       console.timeEnd("Load data");
-      */
       return result;
     }
     catch (err) {
