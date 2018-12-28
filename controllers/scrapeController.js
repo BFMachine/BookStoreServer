@@ -1,4 +1,3 @@
-let db = require("../models");
 let scrapeAndFill = require("../modules/fillDB");
 
 let stopFlag;
@@ -14,7 +13,7 @@ exports.scrape = async (req, res) => {
 
     const options = {
         number : req.params.number,
-        visible: req.params.visible ? true : false
+        visible: !!req.params.visible // ? true : false
     };
 
     try {

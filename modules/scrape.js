@@ -22,6 +22,9 @@ class BookInfoLoader {
 
     this._overlaySubscription = "div.overlay-subscription";
 
+    this._waitPageDownSelectorStart = "div.five-dots[data-v-88c73e72].m-page-preloader";
+    this._waitPageDownSelectorEnd = "div:not(.m-page-preloader).five-dots[data-v-88c73e72]";
+
     this._numberLoadedBooksInCategory = numberLoadedBooksInCategory;
     this._database = null;
     this._fileName = "loaded_db.json";
@@ -102,8 +105,10 @@ class BookInfoLoader {
 
   async _run() {
 
+    let browser;
+
     try {
-      const browser = await puppeteer.launch({
+      browser = await puppeteer.launch({
         headless: !this._visible,
         devtools: false
       });
@@ -129,10 +134,12 @@ class BookInfoLoader {
       }
       
       console.timeEnd("Load data");
+      await browser.close();
       return result;
     }
     catch (err) {
       console.error("Error in _run method" + err);
+      await browser.close();
     }
   }
 
@@ -149,9 +156,6 @@ class BookInfoLoader {
       let throttle = 0;
 
       do {
-
-        await this._scrollEndPage(page);
-
         let arrayElementHandle = await page.$$(this._bookSelector);
 
         let arrayLoadedId = await Promise.all(
@@ -207,6 +211,10 @@ class BookInfoLoader {
             break;
           }
         }
+        
+        await this._scrollEndPage(page);
+        await page.waitForSelector(this._waitPageDownSelectorStart);
+        await page.waitForSelector(this._waitPageDownSelectorEnd);
 
       } while (arrayUnicElement.length  < numberOfBook);
 
@@ -266,11 +274,10 @@ class BookInfoLoader {
           await arrayElementHandle[i].hover();
 
         } catch (err) {
-          console.log("exeption in hover method : " + err);
-          await page.waitFor(500);
-          arrayElementHandle = await page.$$(this._bookMicroGallery);
-          await arrayElementHandle[i].hover();
-
+          
+          console.log("exeption in hover method, run recursion  : " + err);
+          
+          return await this._getAdditionBookInfo(page, id);
         }
       
         let src = "";

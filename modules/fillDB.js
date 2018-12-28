@@ -23,7 +23,7 @@ class FillDB {
 
     for(let i = 0; i < contentDB.length; i++) {
       for(let j = 0; j < contentDB[i].length; j++) {
-        let { title, author, covers, id, text, price, rank } = contentDB[i][j];
+        let { title, author, covers = [], id, text, price, rank, coverSmall } = contentDB[i][j];
         
         /// refactor front if need 
         const fixRank = ["one", "two", "three", "four", "five"];
@@ -43,15 +43,16 @@ class FillDB {
         };
 
         try {
-          let book = await db.Book.findByPk(id);
+          await db.Book.destroy({
+            where: {
+              id: bookData.id
+            }
+          });
       
-          if (!book) {
-            book = await db.Book.create(bookData);
-          } else {
-            await book.updateAttributes(bookData)
-              .catch(err => console.error(`Error on update book in db ${err}`));
-          }
-          
+          const book = await db.Book.create(bookData);
+
+          covers.unshift(coverSmall);
+
           for(let k = 0; k < covers.length; k++) {
             let ret;
             let countTry = -1;
@@ -74,7 +75,12 @@ class FillDB {
     }
     console.log("work complete");
   }
-
+/**
+ * 
+ * @param {*} path 
+ * @param {*} type 
+ * @param {*} book_id 
+ */
   async _getAndStoreFile(path, type, book_id) {
     const filename = "file-" + Date.now() + path.match(/\.[^/.]+$/);
     console.log("load " + filename);
@@ -102,7 +108,8 @@ class FillDB {
           })
           .then(file => {
             if(file) {
-              console.log(`File added ${this._destination + filename}, with id ${file.id} for book id ${book_id} has been created.`);
+              console.log(`File added ${this._destination + filename},
+with id ${file.id} for book id ${book_id} has been created.`);
               resolve(true);
             }
           })
@@ -114,7 +121,6 @@ class FillDB {
         })
         .catch(err => {
           console.error("error load image " + err);
-          //fs.end();
           fs.unlink(this._destination + filename, err => {
             if (err) throw err;
             console.error(this._destination + filename + " was deleted");
