@@ -7,8 +7,13 @@ let cors = require("cors");
 
 var app = express();
 
+
 let corsOptions = {
-  origin: 'http://localhost:3001'
+  origin: [
+    'http://localhost:3001',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500'
+  ]
 };
 
 app.use(cors(corsOptions));

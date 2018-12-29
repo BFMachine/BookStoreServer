@@ -2,7 +2,6 @@ const puppeteer = require("puppeteer");
 const fs = require("fs");
 
 class BookInfoLoader {
-
   constructor(numberLoadedBooksInCategory = 5) {
 
     this._startMainPage = "https://www.ozon.ru/context/div_book/";
@@ -40,7 +39,6 @@ class BookInfoLoader {
   }
 
   async _readFile() {
-
     return new Promise( (resolve, reject) => {
       fs.readFile(this._fileName, "utf8", (error, data) => {
         if(error) {
@@ -59,7 +57,6 @@ class BookInfoLoader {
   }
 
   async _writeFile(data) {
-
     return new Promise( (resolve, reject) => {
       const dbString = JSON.stringify(data, [
         "title",
@@ -82,33 +79,36 @@ class BookInfoLoader {
   }
 
   async getDBContent(forseLoad = false) {
-
     if(!this._database || forseLoad || this._database[0].length != this._numberLoadedBooksInCategory) {
       let db;
       try {
         db = await this._readFile();
       }
-      catch(err) {
-        console.log("error load file " + err);
+      catch(error) {
+        console.error(`error load file in "getDBContent" error=${error}`);
       }
 
       if(forseLoad || !db || db[0].length != this._numberLoadedBooksInCategory) {
-        this._database = await this._run();  
-        await this._writeFile(this._database);
+        try {
+          this._database = await this._run();  
+          await this._writeFile(this._database);
+        }
+        catch(error) {
+          console.error(`error in "_run" method or write file error=${error}`);
+        }
       } else {
          this._database = db;
       }
     }
-
     return this._database;
   }
 
   async _run() {
-
     let browser;
+    this._startTime = Date.now();
 
     try {
-      browser = await puppeteer.launch({
+        browser = await puppeteer.launch({
         headless: !this._visible,
         devtools: false
       });
@@ -116,8 +116,6 @@ class BookInfoLoader {
       const listCategory = await this._loadListCategory();
       let result = [];
       
-      console.time("Load data");
-
       /// in view mode: 174 sec 3 books in any category 5 - 518 sec /// in hide mode: 5 -> 79 sec 10, -> 133 sec, 20 -> 273 sec 
       if(!this._visible) {
           result = await Promise.all(listCategory.map(async (item) => {
@@ -132,13 +130,13 @@ class BookInfoLoader {
           );
         }
       }
-      
-      console.timeEnd("Load data");
+
       await browser.close();
+      console.error(`Total time work = ${Math.round((Date.now() - this._startTime) / 1000)} sec`);
       return result;
     }
-    catch (err) {
-      console.error("Error in _run method" + err);
+    catch (error) {
+      console.error(`Error in "_run" method error=${error}`);
       await browser.close();
     }
   }
@@ -211,10 +209,7 @@ class BookInfoLoader {
             break;
           }
         }
-        
         await this._scrollEndPage(page);
-        await page.waitForSelector(this._waitPageDownSelectorStart);
-        await page.waitForSelector(this._waitPageDownSelectorEnd);
 
       } while (arrayUnicElement.length  < numberOfBook);
 
@@ -230,87 +225,99 @@ class BookInfoLoader {
 
       return arrayUnicElement;
     }
-    catch (err) {
-      console.error(`Error in loadCategory(startPage=${startPage}) err=${err}`);
+    catch (error) {
+      console.error(`Throw in "loadCategory"(startPage=${startPage}) error=${error}`);
     }
   }
 
   async _scrollEndPage(page) {
 
-    await page.evaluate( () => {
-      let bookContainer = document.querySelector("div.item-wrapper[data-v-fc15957c]");
-      let scrollHeight = bookContainer.scrollHeight;
-      window.scrollTo(0, scrollHeight);
-    });
+    try {
+
+      await page.evaluate( () => {
+        let bookContainer = document.querySelector("div.item-wrapper[data-v-fc15957c]");
+        window.scrollTo(0, bookContainer.scrollHeight);
+      });
+
+      await page.waitForSelector(this._waitPageDownSelectorStart);
+      await page.waitForSelector(this._waitPageDownSelectorEnd);
+    }
+    catch (error) {
+      console.log(`Throw in "_scrollEndPage" error=${error}, continue...`);
+    }
   }
 
   async _getAdditionBookInfo(page, id) {
+    try {
 
-    await page.goto(this._bookPage + id, { waitUntil: "load", timeout: 90000 }); 
+      await page.goto(this._bookPage + id, { waitUntil: "load", timeout: 30000 }); 
 
-    let result = {};
-    result.covers = [];
-    
-    let overlayDiv = await page.$$(this._overlaySubscription);
-    if(overlayDiv.length) {
-      await page.evaluate(element => element.style.display = "none", overlayDiv[0]);
-    }
-
-    let arrayElementHandle = await page.$$(this._bookMicroGallery);
-
-    let lastCover = "";
-
-    if(arrayElementHandle.length == 1) {
-      let fullPicture = await page.$$(this._bookFullImageOne);
-      if(fullPicture.length) {
-        const cover = await page.evaluate(element => element.currentSrc, fullPicture[0]);
-        result.covers.push(cover);
-        console.log(`load cover : ${cover}`);
-      }
-    } else {
-
-      for(let i = 0; i < arrayElementHandle.length; i++) {
-        try {
-          await arrayElementHandle[i].hover();
-
-        } catch (err) {
-          
-          console.log("exeption in hover method, run recursion  : " + err);
-          
-          return await this._getAdditionBookInfo(page, id);
-        }
+      let result = {};
+      result.covers = [];
       
-        let src = "";
-        let counter = 0;
-
-        while((src === "" || src === lastCover) && counter < 50) {
-
-          await page.waitFor(50);
-          counter++;
-          let fullPicture = await page.$$(this._bookFullImage);
-
-          if(!fullPicture.length) {
-            break;
-          }
-          src = await page.evaluate(element => element.currentSrc, fullPicture[0]);
-        }
-
-        if(src != "" && src != lastCover) {
-          result.covers.push(src);
-          console.log(`load cover : ${src}`);
-        }
-
-        lastCover = src;
+      let overlayDiv = await page.$$(this._overlaySubscription);
+      if(overlayDiv.length) {
+        await page.evaluate(element => element.style.display = "none", overlayDiv[0]);
       }
-    }
 
-    let moreInfoText = await page.$$(this._bookMoreInfoText);
-    if(moreInfoText.length) {
-      const text = await page.evaluate(element => element.textContent, moreInfoText[0]);
-      result.text = text;
-    }
+      let arrayElementHandle = await page.$$(this._bookMicroGallery);
 
-    return result;
+      let lastCover = "";
+
+      if(arrayElementHandle.length == 1) {
+        let fullPicture = await page.$$(this._bookFullImageOne);
+        if(fullPicture.length) {
+          const cover = await page.evaluate(element => element.currentSrc, fullPicture[0]);
+          result.covers.push(cover);
+          console.log(`load cover : ${cover}`);
+        }
+      } else {
+
+        for(let i = 0; i < arrayElementHandle.length; i++) {
+          try {
+            await arrayElementHandle[i].hover();
+
+          } catch (error) {
+            console.log(`Exception in hover in "_getAdditionBookInfo" method, error=: ${error}, run recursion  `);
+            return await this._getAdditionBookInfo(page, id);
+          }
+        
+          let src = "";
+          let counter = 0;
+
+          while((src === "" || src === lastCover) && counter < 50) {
+
+            await page.waitFor(30);
+            counter++;
+            let fullPicture = await page.$$(this._bookFullImage);
+
+            if(!fullPicture.length) {
+              break;
+            }
+            src = await page.evaluate(element => element.currentSrc, fullPicture[0]);
+          }
+
+          if(src != "" && src != lastCover) {
+            result.covers.push(src);
+            console.log(`load cover : ${src}`);
+          }
+
+          lastCover = src;
+        }
+      }
+
+      let moreInfoText = await page.$$(this._bookMoreInfoText);
+      if(moreInfoText.length) {
+        const text = await page.evaluate(element => element.textContent, moreInfoText[0]);
+        result.text = text;
+      }
+
+      return result;
+
+    } catch (error) {
+      console.log(`exeption in "getAdditionBookInfo" method, id=${id} error=${error}, run recursion`);
+      return await this._getAdditionBookInfo(page, id);
+    }
   }
 
   async _loadListCategory() {
